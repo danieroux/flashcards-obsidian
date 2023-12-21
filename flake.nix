@@ -35,9 +35,12 @@
                     pkgs.anki-bin # https://nixos.wiki/wiki/Anki
                   ];
 
+                  # fo = flashcards-obsidian
                   scripts.fo-dev.exec = "npm install && npm run bootstrap && npm run dev";
                   scripts.fo-test.exec = "npm install && npm run test";
+                  scripts.fo-reset-test-environment.exec = "cd $(git rev-parse --show-toplevel) && git checkout -- docs/test-vault/ tests/anki_base && git clean -fd tests/anki_base/flashcards-obsidian";
                   scripts.fo-build.exec = "npm install && npm run build";
+                  # Assumes OSX only (for now)
                   scripts.fo-anki-for-testing.exec = "${pkgs.anki-bin.outPath}/Applications/Anki.app/Contents/MacOS/anki --base $(git rev-parse --show-toplevel)/tests/anki_base";
 
                   enterShell = ''
@@ -47,7 +50,13 @@
                     echo fo-dev
                     echo fo-test
                     echo fo-build
+                    echo
+                    echo "Also:"
+                    echo
                     echo fo-anki-for-testing
+                    echo fo-reset-test-environment
+                    echo
+                    echo "fo-<tab> for more"
                   '';
 
                 }
