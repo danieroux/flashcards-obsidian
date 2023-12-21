@@ -30,11 +30,15 @@
               modules = [
                 {
                   # https://devenv.sh/reference/options/
-                  packages = [ pkgs.nodejs ];
+                  packages = [
+                    pkgs.nodejs
+                    pkgs.anki-bin # https://nixos.wiki/wiki/Anki
+                  ];
 
                   scripts.fo-dev.exec = "npm install && npm run bootstrap && npm run dev";
                   scripts.fo-test.exec = "npm install && npm run test";
                   scripts.fo-build.exec = "npm install && npm run build";
+                  scripts.fo-anki-for-testing.exec = "${pkgs.anki-bin.outPath}/Applications/Anki.app/Contents/MacOS/anki --base $(git rev-parse --show-toplevel)/tests/anki_base";
 
                   enterShell = ''
                     echo
@@ -43,7 +47,7 @@
                     echo fo-dev
                     echo fo-test
                     echo fo-build
-                    echo
+                    echo fo-anki-for-testing
                   '';
 
                 }
