@@ -27,7 +27,8 @@
     "fixture-media": "node --experimental-strip-types scripts/gen-fixture-media.ts",
     "typecheck": "tsc --noEmit",
     "version": "node version-bump.mjs && git add manifest.json versions.json",
-    "test:native:scope": "node --experimental-strip-types scripts/native/scope-runner.ts"
+    "test:native:scope": "node --experimental-strip-types scripts/native/scope-runner.ts",
+    "bootstrap": "test -d docs/test-vault/.obsidian/plugins/hot-reload || git clone https://github.com/pjeby/hot-reload.git docs/test-vault/.obsidian/plugins/hot-reload"
   },
   "keywords": [
     "obsidian",
