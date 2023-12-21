@@ -7,10 +7,10 @@ node_modules
 package-lock.json
 
 # build
-main.js
-*.js.map
 docs/test-vault/.obsidian/plugins/flashcards/main.js
 docs/test-vault/.obsidian/plugins/flashcards/manifest.json
+dist
+coverage
 
 # scripts
 move.sh
