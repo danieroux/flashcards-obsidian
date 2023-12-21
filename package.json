@@ -23,15 +23,12 @@
     "tslib": "^2.3.0",
     "typescript": "^4.3.4"
   },
-  "keywords": [
-    "obsidian",
-    "anki",
-    "flashcards"
-  ],
+  "keywords": ["obsidian", "anki", "flashcards"],
   "license": "MIT",
   "main": "main.js",
   "name": "flashcards",
   "scripts": {
+    "bootstrap": "test -d docs/test-vault/.obsidian/plugins/hot-reload || git clone https://github.com/pjeby/hot-reload.git docs/test-vault/.obsidian/plugins/hot-reload",
     "build": "rollup --config rollup.config.js --environment BUILD:production",
     "dev": "rollup --config rollup.config.js -w --environment BUILD:dev",
     "test": "jest"

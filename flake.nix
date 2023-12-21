@@ -32,7 +32,7 @@
                   # https://devenv.sh/reference/options/
                   packages = [ pkgs.nodejs ];
 
-                  scripts.fo-dev.exec = "npm install && npm run dev";
+                  scripts.fo-dev.exec = "npm install && npm run bootstrap && npm run dev";
                   scripts.fo-test.exec = "npm install && npm run test";
                   scripts.fo-build.exec = "npm install && npm run build";
 

@@ -8,3 +8,14 @@ You need to pull the repository, install the dependencies with `node` and then b
     $ cd flashcards-obsidian
     ~/flashcards-obsidian$ npm install
     ~/flashcards-obsidian$ npm run dev
+
+### Installing the hot-reload plugin
+If you are on Linux or OSX:
+
+`npm run bootstrap`
+
+It does this:
+
+`git clone https://github.com/pjeby/hot-reload.git docs/test-vault/.obsidian/plugins/hot-reload`
+
+See: https://github.com/pjeby/hot-reload#installation
