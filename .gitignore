@@ -31,3 +31,5 @@ move.sh
 
 # Test-vault
 docs/test-vault/.obsidian/workspace
+.devenv
+.direnv
