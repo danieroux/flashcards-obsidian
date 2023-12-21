@@ -9,5 +9,5 @@
   "inlineSeparator": "::",
   "inlineSeparatorReverse": ":::",
   "defaultAnkiTag": "obsidian",
-  "ankiConnectPermission": false
+  "ankiConnectPermission": true
 }
