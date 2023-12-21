@@ -7,15 +7,15 @@ cards-deck: Inline
 
 ## Must work ✔️
 
-This is a valid::Inline card
+Example 1 is a valid::Inline card
 
-This is a valid :: inline card
+Example 2 is a valid :: inline card
 
-This is a valid:: inline card
+Example 3 is a valid:: inline card
 
-This is a valid ::inline card
+Example 4 is a valid ::inline card
 
-This is a valid:::inline reversed card
+Example 5 is a valid:::inline reversed card
 
 ## Must NOT work ❌
 
