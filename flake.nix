@@ -14,6 +14,13 @@
         fo-reset-test-environment = pkgs.writeShellScriptBin "fo-reset-test-environment" "cd $(git rev-parse --show-toplevel) && git checkout -- docs/test-vault/ tests/anki_base && git clean -fd tests/anki_base/flashcards-obsidian";
         fo-build = pkgs.writeShellScriptBin "fo-build" "npm install && npm run build";
         fo-anki-for-testing = pkgs.writeShellScriptBin "fo-anki-for-testing" "${pkgs.anki-bin.outPath}/Applications/Anki.app/Contents/MacOS/anki --base $(git rev-parse --show-toplevel)/tests/anki_base";
+      fo-refresh-hot-reload = pkgs.writeShellScriptBin "fo-refresh-hot-reload" ''
+        set -e
+        cd docs/test-vault/.obsidian/plugins
+        rm -rf hot-reload*
+        curl -OL https://github.com/pjeby/hot-reload/archive/refs/heads/master.zip
+        unzip master.zip
+        '';
       in
       rec {
         formatter = pkgs.nixpkgs-fmt;
@@ -39,11 +46,13 @@
           packages = [ 
             pkgs.nodejs 
             pkgs.anki-bin 
+            pkgs.curl
             fo-dev
             fo-test
             fo-build 
             fo-reset-test-environment
             fo-anki-for-testing
+            fo-refresh-hot-reload
           ];
         };
       });
