@@ -32,7 +32,6 @@ move.sh
 # Test-vault
 docs/test-vault/.obsidian/workspace
 docs/test-vault/.obsidian/workspace.json
-docs/test-vault/.obsidian/plugins/hot-reload
 
 # Nix flake
 .devenv
