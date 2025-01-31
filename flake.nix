@@ -27,11 +27,11 @@
 
         devShells.default = pkgs.mkShellNoCC {
           shellHook = ''
-                    echo "Open the vault in tests/obsidian_vault"
+                    echo "Open the vault in docs/test-vault"
                     echo
                     echo "Run the scripts that are available in this environment:"
                     echo
-                    echo fo-dev
+                    echo fo-dev # This will build to docs/test-vault
                     echo fo-test
                     echo fo-build
                     echo
@@ -39,6 +39,7 @@
                     echo
                     echo fo-anki-for-testing
                     echo fo-reset-test-environment
+                    echo fo-refresh-hot-reload
                     echo
                     echo "fo-<tab> for more"
           '';
