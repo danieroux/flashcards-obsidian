@@ -20,6 +20,7 @@ import anki
 import anki.sync
 import aqt
 import enum
+import itertools
 
 #
 # Utilities
@@ -91,3 +92,16 @@ def setting(key):
 def patch_anki_2_1_50_having_null_stdout_on_windows():
     if sys.stdout is None:
         sys.stdout = open(os.devnull, "w", encoding="utf8")
+
+
+# ref https://docs.python.org/3.12/library/itertools.html#itertools.batched
+if sys.version_info >= (3, 12):
+    batched = itertools.batched
+else:
+    def batched(iterable, n):
+        iterator = iter(iterable)
+        while True:
+            batch = tuple(itertools.islice(iterator, n))
+            if not batch:
+                break
+            yield batch
