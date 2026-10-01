@@ -58,3 +58,5 @@ CLAUDE.md
 # Native desktop integration test artifacts and run-owned fixtures
 .native-test-results/
 test-vault/scenarios/native-scope/
+
+.direnv
