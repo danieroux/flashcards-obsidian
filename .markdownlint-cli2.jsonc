@@ -29,6 +29,9 @@
     "test-vault/.obsidian/**",
     "docs/test-vault/**",
     "docs/demo.md",
+    // Vendored Anki profile (addons21/AnkiConnect config docs, prefs, and the
+    // plugin's own folder): copied from upstream, not project prose.
+    "tests/anki_base/**",
     // Parser fixtures contain intentionally malformed markdown.
     "tests/fixtures/**",
     // Pinned benchmark fixtures: deterministic inputs, not prose.
