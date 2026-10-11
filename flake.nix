@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -45,7 +45,7 @@
           '';
 
           packages = [ 
-            pkgs.nodejs 
+            pkgs.nodejs_24
             pkgs.anki-bin 
             pkgs.curl
             fo-dev
