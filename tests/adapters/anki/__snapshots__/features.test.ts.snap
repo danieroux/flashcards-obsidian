@@ -230,6 +230,30 @@ exports[`test-vault/features snapshot coverage > renders card-types/hashtag.md 1
 ]
 `;
 
+exports[`test-vault/features snapshot coverage > renders card-types/hqa.md 1`] = `
+[
+  {
+    "deckName": "card-types",
+    "fields": {
+      "Back": "<p>With the answer in another paragraph.
+This is a continuation of the answer.</p>
+<p>A line break is fine.
+The start of a Markdown quote is the indication that the answer ended and highlight is starting</p>",
+      "Context": "<p>With the highlight below it, which is the reference that
+I want to be able to refer back to
+Heading 1 > Heading 2</p>",
+      "Front": "<p>One paragraph that has a tag at the end to indicate it is a</p>",
+      "Source": "<a class="flashcards-source" href="obsidian://open?vault=Vault&file=card-types%2Fhqa.md#%5Ecard-0"><span class="flashcards-source-action">Edit source in Obsidian ↗</span><br><small class="flashcards-source-path">card-types/hqa</small></a>",
+    },
+    "modelName": "Obsidian-basic",
+    "tags": [
+      "obsidian",
+      "feature-fixture",
+    ],
+  },
+]
+`;
+
 exports[`test-vault/features snapshot coverage > renders card-types/inline-basic.md 1`] = `
 [
   {

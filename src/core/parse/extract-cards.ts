@@ -16,7 +16,10 @@ import type { Flashcard } from "../domain/card.js";
 import { intersectsSpan, type Span } from "./cloze-spans.js";
 import { parseClozeSyntax } from "./cloze-syntax.js";
 import { extractAtomicCards } from "./extract-atomic-cards.js";
-import { extractHashtagCards } from "./extract-hashtag-cards.js";
+import {
+  extractHashtagCards,
+  extractQuestionCards,
+} from "./extract-hashtag-cards.js";
 import {
   collectProtectedMarkdownSpans,
   parseMarkdownTree,
@@ -273,6 +276,25 @@ export function extractCardsFromMarkdown(
     }
   });
 
+  // HQ&A is the last resort: every other syntax gets first claim on the text.
+  const questions = extractQuestionCards(
+    markdown,
+    tree,
+    options.settings,
+    {
+      defaultTags: resolvedTags,
+      metadataTags: [],
+      notePath: options.notePath,
+      resolvedDeck,
+    },
+    cards.map((card) => ({
+      end: card.source.endOffset,
+      start: card.source.startOffset,
+    })),
+  );
+  cards.push(...questions.cards);
+  warnings.push(...questions.warnings);
+
   return {
     cards: applyContext(
       cards.sort((left, right) => left.source.startOffset - right.source.startOffset),
@@ -307,9 +329,13 @@ function applyContext(
   const title = noteTitle(options.notePath);
 
   return cards.map((card) => {
-    const context = options.settings.contextStrategy === "note-title"
+    const location = options.settings.contextStrategy === "note-title"
       ? title
       : headingContextAt(headings, card.source.startOffset)?.join(separator) ?? "";
+    // HQ&A cards carry their highlight as context; the location follows it.
+    const context = card.source.syntax === "hqa"
+      ? [card.context, location].filter(Boolean).join("\n")
+      : location;
 
     if (!context || card.front === context) {
       return card;

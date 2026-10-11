@@ -3,6 +3,7 @@ export type CardSyntax =
   | "inline"
   | "cloze"
   | "hashtag"
+  | "hqa"
   | "fenced"
   | "atomic"
   | "callout";

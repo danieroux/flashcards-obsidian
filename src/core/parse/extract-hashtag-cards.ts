@@ -2,6 +2,7 @@ import type { Heading, Paragraph, Root, RootContent } from "mdast";
 
 import type { FlashcardsSettings } from "../config/settings.js";
 import type { CardKind, Flashcard } from "../domain/card.js";
+import { intersectsSpan, type Span } from "./cloze-spans.js";
 
 export interface HashtagExtractContext {
   defaultTags: string[];
@@ -33,6 +34,7 @@ interface ParagraphMarker {
   standalone: boolean;
 }
 
+const QUESTION_TAG = "#question";
 const TRAILING_ANCHOR_RE = /\s*\^(?:q-[abcdefghijkmnpqrstuvwxyz23456789]{4}|\d{13})\s*$/;
 
 /**
@@ -214,6 +216,124 @@ function addCardOrWarning(
     },
     tags: [...new Set([...context.defaultTags, ...context.metadataTags])],
   });
+}
+
+/**
+/**
+ * Extract HQ&A (`#question`) cards. Runs last: paragraphs and nodes already
+ * claimed by any other card syntax are never treated as questions, answers, or
+ * highlights.
+ */
+export function extractQuestionCards(
+  markdown: string,
+  tree: Root,
+  settings: FlashcardsSettings,
+  context: HashtagExtractContext,
+  claimed: Span[],
+): HashtagExtractResult {
+  if (!settings.hashtag.enabled) return { cards: [], warnings: [] };
+
+  const cards: Flashcard[] = [];
+  const warnings: string[] = [];
+  const children = tree.children;
+
+  for (let index = 0; index < children.length; index++) {
+    const node = children[index]!;
+    if (node.type !== "paragraph" || isClaimed(node, claimed)) continue;
+    const consumedTo = extractQuestionCard(
+      markdown,
+      children,
+      index,
+      node,
+      cards,
+      warnings,
+      context,
+      claimed,
+    );
+    if (consumedTo !== null) index = consumedTo;
+  }
+
+  return { cards, warnings };
+}
+
+function isClaimed(node: RootContent, claimed: Span[]): boolean {
+  return intersectsSpan(offsetStart(node), offsetEnd(node), claimed);
+}
+
+/**
+ * HQ&A: a paragraph line ending in `#question` is the front, everything after
+ * it is the answer, and the next top-level blockquote is the highlight (stored
+ * as context). Returns the last consumed child index, or null if the paragraph
+ * is not a question.
+ */
+function extractQuestionCard(
+  markdown: string,
+  children: RootContent[],
+  index: number,
+  node: Paragraph,
+  cards: Flashcard[],
+  warnings: string[],
+  context: HashtagExtractContext,
+  claimed: Span[],
+): number | null {
+  const raw = sliceNode(markdown, node);
+  const line = splitLines(raw).find(
+    (candidate) => trailingTagIndex(candidate.text, QUESTION_TAG) >= 0,
+  );
+  if (!line) return null;
+
+  const front = clean(
+    raw.slice(0, line.start + trailingTagIndex(line.text, QUESTION_TAG)),
+  );
+  let highlightIndex = -1;
+  for (let next = index + 1; next < children.length; next++) {
+    const candidate = children[next]!;
+    if (candidate.type === "blockquote") {
+      highlightIndex = next;
+      break;
+    }
+    if (candidate.type === "heading" || isClaimed(candidate, claimed)) break;
+  }
+
+  if (highlightIndex < 0) {
+    warnings.push(
+      `Skipped #question in ${context.notePath}:${node.position?.start.line ?? 1}: missing highlight blockquote.`,
+    );
+    return index;
+  }
+
+  const blockquote = children[highlightIndex]!;
+  const answer = clean(
+    markdown.slice(offsetStart(node) + line.end, offsetStart(blockquote)),
+  );
+  const highlight = sliceNode(markdown, blockquote)
+    .split("\n")
+    .map((quoteLine) => quoteLine.replace(/^\s*>\s?/, "").trim())
+    .join("\n")
+    .trim();
+
+  if (front.length === 0 || answer.length === 0) {
+    warnings.push(
+      `Skipped #question in ${context.notePath}:${node.position?.start.line ?? 1}: empty ${front.length === 0 ? "question" : "answer"}.`,
+    );
+    return highlightIndex;
+  }
+
+  cards.push({
+    answer,
+    context: highlight,
+    deckName: context.resolvedDeck,
+    front,
+    kind: "basic",
+    source: {
+      endOffset: offsetEnd(blockquote),
+      line: node.position?.start.line ?? 1,
+      startOffset: offsetStart(node),
+      syntax: "hqa",
+    },
+    tags: [...new Set([...context.defaultTags, ...context.metadataTags])],
+  });
+  return highlightIndex;
 }
 
 function findParagraphMarkers(raw: string, specs: TagSpec[]): ParagraphMarker[] {

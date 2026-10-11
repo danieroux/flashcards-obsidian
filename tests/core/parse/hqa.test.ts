@@ -83,3 +83,47 @@ describe("HQ&A notes (#question hashtag cards)", () => {
     );
   });
 });
+
+// `#question` is the last resort: every other card syntax gets first claim on
+// the text, and HQ&A only sees what is left.
+describe("HQ&A precedence", () => {
+  test("an inline card on the question line wins over #question", () => {
+    const result = extract(
+      ["What is 2+2?::4 #question", "", "> Highlight."].join("\n"),
+    );
+
+    expect(result.warnings).toEqual([]);
+    expect(result.cards).toHaveLength(1);
+    expect(result.cards[0]?.source.syntax).toBe("inline");
+  });
+
+  test("a cloze in the question paragraph wins over #question", () => {
+    const result = extract(
+      ["Question #question", "Answer with ==cloze==", "", "> Highlight."].join(
+        "\n",
+      ),
+    );
+
+    expect(result.warnings).toEqual([]);
+    expect(result.cards).toHaveLength(1);
+    expect(result.cards[0]?.source.syntax).toBe("cloze");
+  });
+
+  test("the highlight search stops at a node claimed by another card", () => {
+    const result = extract(
+      [
+        "Question #question",
+        "Answer.",
+        "",
+        "Term::Definition",
+        "",
+        "> Highlight.",
+      ].join("\n"),
+    );
+
+    expect(result.cards).toHaveLength(1);
+    expect(result.cards[0]?.source.syntax).toBe("inline");
+    expect(result.warnings).toHaveLength(1);
+    expect(result.warnings[0]).toMatch(/highlight/i);
+  });
+});
