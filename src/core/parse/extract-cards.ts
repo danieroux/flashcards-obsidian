@@ -329,13 +329,9 @@ function applyContext(
   const title = noteTitle(options.notePath);
 
   return cards.map((card) => {
-    const location = options.settings.contextStrategy === "note-title"
+    const context = options.settings.contextStrategy === "note-title"
       ? title
       : headingContextAt(headings, card.source.startOffset)?.join(separator) ?? "";
-    // HQ&A cards carry their highlight as context; the location follows it.
-    const context = card.source.syntax === "hqa"
-      ? [card.context, location].filter(Boolean).join("\n")
-      : location;
 
     if (!context || card.front === context) {
       return card;

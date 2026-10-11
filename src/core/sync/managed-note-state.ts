@@ -2,11 +2,13 @@ import type { IdentifiedFlashcard } from "../domain/card.js";
 import {
   ANKI_MODEL_BASIC,
   ANKI_MODEL_CLOZE,
+  ANKI_MODEL_HQA,
   ANKI_MODEL_REMINDER,
   ANKI_MODEL_REVERSED,
 } from "../render/render-card.js";
 
 export function desiredManagedModel(card: IdentifiedFlashcard): string {
+  if (card.source.syntax === "hqa") return ANKI_MODEL_HQA;
   if (card.kind === "cloze") return ANKI_MODEL_CLOZE;
   if (card.kind === "reminder") return ANKI_MODEL_REMINDER;
   if (card.kind === "reversed") return ANKI_MODEL_REVERSED;
@@ -23,6 +25,9 @@ export function crossesClozeBoundary(
 function managedFieldNames(modelName: string): string[] {
   if (modelName === ANKI_MODEL_REMINDER) {
     return ["Content", "Context", "Source"];
+  }
+  if (modelName === ANKI_MODEL_HQA) {
+    return ["Front", "Back", "Context", "Highlight", "Source"];
   }
   return modelName === ANKI_MODEL_CLOZE
     ? ["Text", "Extra", "Context", "Source"]

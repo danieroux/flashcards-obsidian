@@ -67,8 +67,8 @@ const CTX = {
 // ============================================================================
 
 describe("getAnkiModelSpecs", () => {
-  it("returns exactly 4 model specs", () => {
-    expect(getAnkiModelSpecs()).toHaveLength(4);
+  it("returns exactly 5 model specs", () => {
+    expect(getAnkiModelSpecs()).toHaveLength(5);
   });
 
   it("wraps long code in the default CSS for every new managed model", () => {

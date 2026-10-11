@@ -1,5 +1,6 @@
 import type { ExecuteSyncPlanInput } from "../ports.js";
 import {
+  ANKI_MODEL_HQA,
   renderCardForAnki,
 } from "../../core/render/render-card.js";
 import { crossesClozeBoundary } from "../../core/sync/managed-note-state.js";
@@ -11,7 +12,10 @@ import {
   desiredAnkiTags,
   diffTags,
 } from "../../core/sync/tag-ownership.js";
-import { ensureManagedModels } from "./sync-execution-session.js";
+import {
+  ensureManagedModels,
+  ensureOptionalModel,
+} from "./sync-execution-session.js";
 
 function errorMessage(e: unknown): string {
   return e instanceof Error ? e.message : String(e);
@@ -72,6 +76,13 @@ export async function executeSyncPlan(
   // the existing templates without replacing their HTML. Replacing templates
   // and CSS is available only through the explicit, backed-up style command.
   await ensureManagedModels(client, logger, executionSession);
+  if (
+    [...plan.create, ...plan.update].some(
+      (op) => op.card.source.syntax === "hqa",
+    )
+  ) {
+    await ensureOptionalModel(client, logger, executionSession, ANKI_MODEL_HQA);
+  }
 
   // 3. Bootstrap decks needed by CREATEs, confirmed recreations, and source-
   // owned deck moves.

@@ -23,7 +23,7 @@ function extract(markdown: string) {
 
 // HQ&A invariant: a `#question` card always carries front (the question),
 // answer, and a highlight (the blockquote below the answer). The highlight is
-// merged into `context` together with the heading location. A line break never
+// kept separate from `context`, which is shown on the front. A line break never
 // ends the answer: the blockquote does. A `#question` without a highlight is
 // invalid and is skipped with a warning.
 describe("HQ&A notes (#question hashtag cards)", () => {
@@ -46,11 +46,11 @@ describe("HQ&A notes (#question hashtag cards)", () => {
         "A line break is fine.",
         "The start of a Markdown quote is the indication that the answer ended and highlight is starting",
       ].join("\n"),
-      // The location part is the fixture's heading path (`Heading 1 > Heading 2`).
-      context: [
+      // Context is the front-side location; the highlight never joins it.
+      context: "Heading 1 > Heading 2",
+      highlight: [
         "With the highlight below it, which is the reference that",
         "I want to be able to refer back to",
-        "Heading 1 > Heading 2",
       ].join("\n"),
       kind: "basic",
       source: { syntax: "hqa" },
@@ -82,6 +82,28 @@ describe("HQ&A notes (#question hashtag cards)", () => {
       "Because the answer is a single paragraph.",
     );
   });
+});
+
+// Sync writes the block anchor at the end of the card's range: the quote. An
+// own-line anchor is a lazy continuation of the blockquote.
+test.each([
+  ["inline", "> I want to be able to refer back to ^q-xbg8"],
+  ["own-line", "> I want to be able to refer back to\n^q-xbg8"],
+])("keeps a %s block anchor out of the highlight", (_shape, lastLine) => {
+  const result = extract(
+    [
+      "Question #question",
+      "Answer.",
+      "",
+      "> With the highlight below it",
+      lastLine,
+    ].join("\n"),
+  );
+
+  expect(result.cards).toHaveLength(1);
+  expect(result.cards[0]?.highlight).toBe(
+    "With the highlight below it\nI want to be able to refer back to",
+  );
 });
 
 // `#question` is the last resort: every other card syntax gets first claim on

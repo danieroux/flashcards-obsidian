@@ -262,8 +262,8 @@ function isClaimed(node: RootContent, claimed: Span[]): boolean {
 
 /**
  * HQ&A: a paragraph line ending in `#question` is the front, everything after
- * it is the answer, and the next top-level blockquote is the highlight (stored
- * as context). Returns the last consumed child index, or null if the paragraph
+ * it is the answer, and the next top-level blockquote is the highlight.
+ * Returns the last consumed child index, or null if the paragraph
  * is not a question.
  */
 function extractQuestionCard(
@@ -306,11 +306,14 @@ function extractQuestionCard(
   const answer = clean(
     markdown.slice(offsetStart(node) + line.end, offsetStart(blockquote)),
   );
-  const highlight = sliceNode(markdown, blockquote)
-    .split("\n")
-    .map((quoteLine) => quoteLine.replace(/^\s*>\s?/, "").trim())
-    .join("\n")
-    .trim();
+  // The card's block anchor is written at the end of its range, i.e. on the
+  // last quote line, so strip it like any other card field.
+  const highlight = clean(
+    sliceNode(markdown, blockquote)
+      .split("\n")
+      .map((quoteLine) => quoteLine.replace(/^\s*>\s?/, "").trim())
+      .join("\n"),
+  );
 
   if (front.length === 0 || answer.length === 0) {
     warnings.push(
@@ -321,9 +324,9 @@ function extractQuestionCard(
 
   cards.push({
     answer,
-    context: highlight,
     deckName: context.resolvedDeck,
     front,
+    highlight,
     kind: "basic",
     source: {
       endOffset: offsetEnd(blockquote),

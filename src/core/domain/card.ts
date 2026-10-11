@@ -21,6 +21,8 @@ export interface Flashcard {
   context?: string;
   deckName?: string;
   front: string;
+  /** HQ&A only: the source quote shown below the answer. Never on the front. Contains answer content. */
+  highlight?: string;
   kind: CardKind;
   source: CardSource;
   tags: string[];

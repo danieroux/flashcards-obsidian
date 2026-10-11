@@ -28,6 +28,7 @@ export const ANKI_MODEL_BASIC = "Obsidian-basic";
 export const ANKI_MODEL_REVERSED = "Obsidian-basic-reversed";
 export const ANKI_MODEL_CLOZE = "Obsidian-cloze";
 export const ANKI_MODEL_REMINDER = "Obsidian-reminder";
+export const ANKI_MODEL_HQA = "Obsidian-hqa";
 
 const DEFAULT_CSS = `/* flashcards-obsidian-managed:start */
 .card {
@@ -65,6 +66,7 @@ const DEFAULT_CSS = `/* flashcards-obsidian-managed:start */
 .flashcards-reminder-guidance,
 .flashcards-context,
 .flashcards-answer,
+.flashcards-highlight,
 .flashcards-source-footer,
 .flashcards-answer-divider {
   width: min(100%, 700px);
@@ -82,6 +84,13 @@ const DEFAULT_CSS = `/* flashcards-obsidian-managed:start */
 
 .flashcards-context p {
   margin: 0;
+}
+
+.flashcards-highlight {
+  margin-top: 0.85rem;
+  padding-left: 0.85rem;
+  border-left: 3px solid var(--flashcards-muted);
+  color: var(--flashcards-muted);
 }
 
 .flashcards-question {
@@ -209,6 +218,8 @@ export const ANKI_CONTEXT_TEMPLATE =
 const BASIC_FRONT_TEMPLATE = `${ANKI_CONTEXT_TEMPLATE}<section class="flashcards-question">{{Front}}</section>`;
 const BASIC_BACK_TEMPLATE =
   '{{FrontSide}}<hr id="answer" class="flashcards-answer-divider"><section class="flashcards-answer">{{Back}}</section><footer class="flashcards-source-footer">{{Source}}</footer>';
+const HQA_BACK_TEMPLATE =
+  '{{FrontSide}}<hr id="answer" class="flashcards-answer-divider"><section class="flashcards-answer">{{Back}}</section>{{#Highlight}}<blockquote class="flashcards-highlight">{{Highlight}}</blockquote>{{/Highlight}}<footer class="flashcards-source-footer">{{Source}}</footer>';
 const REVERSED_FRONT_TEMPLATE = `${ANKI_CONTEXT_TEMPLATE}<section class="flashcards-question">{{Back}}</section>`;
 const REVERSED_BACK_TEMPLATE =
   '{{FrontSide}}<hr id="answer" class="flashcards-answer-divider"><section class="flashcards-answer">{{Front}}</section><footer class="flashcards-source-footer">{{Source}}</footer>';
@@ -239,6 +250,7 @@ export interface RenderedFields {
   Front: string;
   Back: string;
   Context: string;
+  Highlight: string;
   Text: string;
   Extra: string;
   Source: string;
@@ -307,6 +319,19 @@ export function getAnkiModelSpecs(): AnkiCreateModelSpec[] {
           Name: "Card 1",
           Front: REMINDER_FRONT_TEMPLATE,
           Back: REMINDER_BACK_TEMPLATE,
+        },
+      ],
+    },
+    {
+      modelName: ANKI_MODEL_HQA,
+      inOrderFields: ["Front", "Back", "Context", "Highlight", "Source"],
+      isCloze: false,
+      css: DEFAULT_CSS,
+      cardTemplates: [
+        {
+          Name: "Card 1",
+          Front: BASIC_FRONT_TEMPLATE,
+          Back: HQA_BACK_TEMPLATE,
         },
       ],
     },
@@ -456,6 +481,21 @@ export function renderCardForAnki(
       fields: {
         Content: md(rewrite(card.front)),
         Context: context,
+        Source: source,
+      } as RenderedFields,
+      tags: ctx.tags,
+    };
+  }
+
+  if (card.source.syntax === "hqa") {
+    return {
+      deckName: ctx.deckName,
+      modelName: ANKI_MODEL_HQA,
+      fields: {
+        Front: md(rewrite(card.front)),
+        Back: md(rewrite(card.answer)),
+        Context: context,
+        Highlight: card.highlight === undefined ? "" : md(rewrite(card.highlight)),
         Source: source,
       } as RenderedFields,
       tags: ctx.tags,

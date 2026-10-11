@@ -127,6 +127,22 @@ async function bootstrapManagedModels(
   }
 }
 
+/** Optional managed models are created on first use, not on every sync. */
+export async function ensureOptionalModel(
+  client: AnkiGateway,
+  logger: Logger,
+  session: SyncExecutionSession,
+  name: string,
+): Promise<void> {
+  const existingModels = await sessionModelNames(client, session);
+  if (existingModels.has(name)) return;
+  const spec = getAnkiModelSpecs().find((candidate) => candidate.modelName === name);
+  if (spec === undefined) return;
+  logger.info("bootstrap: creating missing model", { model: name });
+  await client.createModel(spec);
+  existingModels.add(name);
+}
+
 export async function ensureManagedModels(
   client: AnkiGateway,
   logger: Logger,
